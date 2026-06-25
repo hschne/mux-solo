@@ -39,6 +39,7 @@ export default function (pi: ExtensionAPI) {
   const project_name = basename(process.cwd());
   let model_name = "";
   let is_working = false;
+  let errored = false;
   let last_title = "";
   let last_state = "";
 
@@ -92,7 +93,7 @@ export default function (pi: ExtensionAPI) {
       ? ` · ${truncate(session_title, MAX_SESSION_TITLE_LEN)}`
       : "";
     const title = `${status_icon} ${project_name}${model_part}${session_part}`;
-    const state = is_working ? "working" : "waiting";
+    const state = is_working ? "working" : errored ? "crashed" : "waiting";
 
     if (title === last_title && state === last_state) return;
     last_title = title;
@@ -174,7 +175,14 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("agent_start", async (_event, ctx) => {
     is_working = true;
+    errored = false;
     update_title(ctx);
+  });
+
+  // Track the latest provider HTTP status so a failed turn (e.g. a 429
+  // rate limit) ends as crashed (red) rather than waiting (blue).
+  pi.on("after_provider_response", async (event) => {
+    errored = event.status >= 400;
   });
 
   pi.on("agent_end", async (_event, ctx) => {
