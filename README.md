@@ -40,22 +40,22 @@ set -g window-status-current-format \
 ## Shell hook (zsh)
 
 ```sh
-source ~/.tmux/plugins/mux-solo/shell/mux-solo.zsh
+source "$(tmux show-environment -g MUX_SOLO_DIR | cut -d= -f2)/shell/mux-solo.zsh"
 ```
 
-List the commands to track in `~/.config/mux-solo/processes`, one prefix
-per line. Aliases are expanded and leading env assignments stripped, so
-`rails` matches `rails server`, `bundle exec rails` matches `bundle exec
-rails db:migrate`, and your `rs` alias resolves to `rails`:
+(The plugin publishes its install dir as the `MUX_SOLO_DIR` tmux
+environment variable, so you don't hardcode the tpm path.)
 
-```
-rails
-bundle exec rails
-node
-vite
+List the commands to track in the `@mux-solo-processes` tmux option, a
+comma-separated list. Aliases are expanded and leading env assignments
+stripped, so `rails` matches `rails server`, `bundle exec rails` matches
+`bundle exec rails db:migrate`, and your `rs` alias resolves to `rails`:
+
+```tmux
+set -g @mux-solo-processes 'rails, bundle exec rails, node, vite'
 ```
 
-Reload after edits with `mux-solo-reload`.
+Reload after changing the option with `mux-solo-reload`.
 
 ## Agents
 
@@ -63,12 +63,13 @@ Run [pi](https://pi.dev) with the bundled extension so each agent shows
 working/waiting:
 
 ```sh
-pi -e ~/.tmux/plugins/mux-solo/integrations/pi/tmux.ts
+pi -e "$(tmux show-environment -g MUX_SOLO_DIR | cut -d= -f2)/integrations/pi/tmux.ts"
 ```
 
 ## Options
 
 ```tmux
+set -g @mux-solo-processes ''           # comma-separated commands to track (zsh hook)
 set -g @mux-solo-color-running  green   # also -working -waiting -crashed -exited -label
 set -g @mux-solo-glyph-active    ●      # running / working
 set -g @mux-solo-glyph-inactive  ○      # crashed / exited

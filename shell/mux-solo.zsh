@@ -2,7 +2,8 @@
 #
 # Marks each pane with a status the tmux window tabs render as a colored
 # dot + label. Tracks only commands matching a prefix listed in the
-# processes file ($MUX_SOLO_CONF, default ~/.config/mux-solo/processes).
+# `@mux-solo-processes` tmux option (comma-separated, e.g.
+# `set -g @mux-solo-processes 'rails, node, bundle exec rails'`).
 # Before matching, a leading shell alias is expanded and leading env
 # assignments (FOO=1) are stripped, so `rs` (your alias) and
 # `RAILS_ENV=test rails s` resolve. Matching is word-prefix: `rails`
@@ -14,22 +15,26 @@
 # Only meaningful inside tmux.
 [[ -n "$TMUX" ]] || return 0
 
-MUX_SOLO_CONF="${MUX_SOLO_CONF:-${XDG_CONFIG_HOME:-$HOME/.config}/mux-solo/processes}"
 typeset -ga _mux_solo_procs
 
+# Read the tracked commands from the `@mux-solo-processes` tmux option:
+# a comma-separated list whose entries may themselves contain spaces
+# (e.g. `bundle exec rails`). Each entry is whitespace-normalized.
 _mux_solo_load() {
+  emulate -L zsh
   _mux_solo_procs=()
-  [[ -r "$MUX_SOLO_CONF" ]] || return 0
-  local line
+  local raw
+  raw="$(tmux show-option -gqv @mux-solo-processes 2>/dev/null)"
+  [[ -n "$raw" ]] || return 0
+  local entry
   local -a fields
-  while IFS= read -r line; do
-    line="${line%%#*}"          # strip trailing comments
-    fields=(${=line})           # whitespace-split (drops blank lines)
+  for entry in ${(s:,:)raw}; do
+    fields=(${=entry})          # whitespace-split (drops blanks, normalizes)
     (( $#fields )) && _mux_solo_procs+="${(j: :)fields}"  # normalized entry
-  done < "$MUX_SOLO_CONF"
+  done
 }
 
-mux-solo-reload() { _mux_solo_load; }
+mux-solo-reload() { emulate -L zsh; _mux_solo_load; }
 
 # Per-shell memory of what we last pushed to tmux, so we only shell out to
 # tmux when the state actually changes (keeps the prompt fast).
@@ -44,12 +49,14 @@ typeset -g _mux_solo_cmd=""
 # client's ACTIVE pane, not the calling shell's pane, so background panes
 # (tmuxinator startup) would otherwise write to the wrong window.
 _mux_solo_unset_pane() {
+  emulate -L zsh
   tmux set-option -pu -t "$TMUX_PANE" @pane_status \; \
        set-option -pu -t "$TMUX_PANE" @pane_label \; \
        refresh-client -S 2>/dev/null
 }
 
 _mux_solo_set() {
+  emulate -L zsh
   local state="$1" label="$2"
   [[ "$state" == "$_mux_solo_state" && "$label" == "$_mux_solo_label" ]] && return 0
   _mux_solo_state="$state"
@@ -62,6 +69,7 @@ _mux_solo_set() {
 }
 
 _mux_solo_clear() {
+  emulate -L zsh
   [[ -z "$_mux_solo_state" ]] && return 0
   _mux_solo_state=""
   _mux_solo_label=""
@@ -72,6 +80,7 @@ _mux_solo_clear() {
 # per name, like zsh itself) and strip leading env assignments. No
 # subshell, so it stays cheap to run on every prompt.
 _mux_solo_resolve() {
+  emulate -L zsh
   local -a words
   words=(${(z)1})
   typeset -A seen
@@ -94,6 +103,7 @@ _mux_solo_resolve() {
 # True if the resolved command equals a config entry or begins with one
 # followed by a space (word-prefix match).
 _mux_solo_match() {
+  emulate -L zsh
   local entry
   for entry in $_mux_solo_procs; do
     [[ "$1" == "$entry" || "$1" == "$entry "* ]] && return 0
@@ -102,6 +112,7 @@ _mux_solo_match() {
 }
 
 _mux_solo_preexec() {
+  emulate -L zsh
   _mux_solo_resolve "$1"
   if [[ -n "$_mux_solo_cmd" ]] && _mux_solo_match "$_mux_solo_cmd"; then
     _mux_solo_pending_tracked=1
@@ -114,7 +125,8 @@ _mux_solo_preexec() {
 }
 
 _mux_solo_precmd() {
-  local ec=$?
+  local ec=$?        # capture before anything else clobbers it
+  emulate -L zsh
   if (( _mux_solo_pending_tracked )); then
     if (( ec == 0 )) || (( ec >= 129 && ec <= 158 )); then
       _mux_solo_set exited "$_mux_solo_pending_label"

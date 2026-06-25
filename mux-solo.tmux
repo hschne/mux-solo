@@ -13,6 +13,8 @@
 #   @pane_label   short text shown next to the dot
 set -euo pipefail
 
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 set_default() {
   local opt="$1" val="$2"
   [ -z "$(tmux show-options -gqv "$opt" 2>/dev/null)" ] && tmux set-option -g "$opt" "$val"
@@ -48,3 +50,8 @@ attention='#{?#{m:*crashed*,#{P:#{@pane_status} }},#{@mux-solo-color-crashed},#{
 
 tmux set-option -g "@mux_solo_name" "$name"
 tmux set-option -g "@mux_solo_attention" "$attention"
+
+# Publish our install dir so the shell hook and pi extension can be sourced
+# without hardcoding the tpm plugin path:
+#   source "$(tmux show-environment -g MUX_SOLO_DIR | cut -d= -f2)/shell/mux-solo.zsh"
+tmux set-environment -g MUX_SOLO_DIR "$CURRENT_DIR"
