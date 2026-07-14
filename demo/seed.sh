@@ -40,7 +40,7 @@ tmux -L "$SOCK" new-window -t demo:2 -n test "$HOLD"
 mock "$(tmux -L "$SOCK" list-panes -t demo:2 -F '#{pane_id}')" exited "rspec"
 
 tmux -L "$SOCK" new-window -t demo:3 -n agent "$HOLD"
-mock "$(tmux -L "$SOCK" list-panes -t demo:3 -F '#{pane_id}')" waiting "π"
+mock "$(tmux -L "$SOCK" list-panes -t demo:3 -F '#{pane_id}')" waiting "󴄾"
 
 tmux -L "$SOCK" new-window -t demo:4 -n plain "$HOLD"
 
