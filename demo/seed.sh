@@ -33,14 +33,16 @@ mock() { tmux -L "$SOCK" set-option -p -t "$1" @pane_status "$2"; tmux -L "$SOCK
 
 tmux -L "$SOCK" rename-window -t demo:1 web
 tmux -L "$SOCK" split-window -t demo:1 -h "$HOLD"
-w=($(tmux -L "$SOCK" list-panes -t demo:1 -F '#{pane_id}'))
+mapfile -t w < <(tmux -L "$SOCK" list-panes -t demo:1 -F '#{pane_id}')
 mock "${w[0]}" running "rails server"; mock "${w[1]}" crashed "sidekiq"
 
 tmux -L "$SOCK" new-window -t demo:2 -n test "$HOLD"
 mock "$(tmux -L "$SOCK" list-panes -t demo:2 -F '#{pane_id}')" exited "rspec"
 
-tmux -L "$SOCK" new-window -t demo:3 -n agent "$HOLD"
-mock "$(tmux -L "$SOCK" list-panes -t demo:3 -F '#{pane_id}')" waiting "󴄾"
+tmux -L "$SOCK" new-window -t demo:3 -n agents "$HOLD"
+tmux -L "$SOCK" split-window -t demo:3 -h "$HOLD"
+mapfile -t a < <(tmux -L "$SOCK" list-panes -t demo:3 -F '#{pane_id}')
+mock "${a[0]}" waiting "󴄾"; mock "${a[1]}" working "󴀷"
 
 tmux -L "$SOCK" new-window -t demo:4 -n plain "$HOLD"
 

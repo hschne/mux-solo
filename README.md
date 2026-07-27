@@ -52,12 +52,18 @@ stripped, so `rails` matches `rails server`, `bundle exec rails` matches
 `bundle exec rails db:migrate`, and your `rs` alias resolves to `rails`:
 
 ```tmux
-set -g @mux-solo-processes 'rails, bundle exec rails, node, vite'
+set -g @mux-solo-processes 'rails, bundle exec rails, node, vite, claude'
 ```
 
 Reload after changing the option with `mux-solo-reload`.
 
 ## Agents
+
+Agent labels use glyphs from
+[lobe-icons-font](https://github.com/hschne/lobe-icons-font); configure it as
+a fallback font for your terminal.
+
+### Pi
 
 Run [pi](https://pi.dev) with the bundled extension so each agent shows
 working/waiting:
@@ -65,6 +71,19 @@ working/waiting:
 ```sh
 pi -e "$(tmux show-environment -g MUX_SOLO_DIR | cut -d= -f2)/integrations/pi/tmux.ts"
 ```
+
+### Claude Code
+
+Run Claude Code with the bundled plugin:
+
+```sh
+claude --plugin-dir "$(tmux show-environment -g MUX_SOLO_DIR | cut -d= -f2)/integrations/claude"
+```
+
+The plugin marks submitted turns as working, completed turns as waiting,
+failed turns as crashed, and clears the pane when the session ends. Keep
+`claude` in `@mux-solo-processes` as shown above to also track the process
+lifetime before startup and after shutdown.
 
 ## Options
 

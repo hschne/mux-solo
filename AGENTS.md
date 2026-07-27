@@ -11,6 +11,7 @@ crashed exited`) and `@pane_label`; a tmux format renders them.
   default `@mux-solo-*` colour/glyph options.
 - `shell/mux-solo.zsh` — zsh producer (preexec/precmd). zsh only.
 - `integrations/pi/tmux.ts` — pi agent producer.
+- `integrations/claude/` — Claude Code hook plugin producer.
 - `demo/seed.sh` — throwaway session with every state for preview/tests.
 
 ## Rules

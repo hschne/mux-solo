@@ -1,0 +1,9 @@
+{
+  "name": "mux-solo",
+  "version": "1.0.0",
+  "description": "Report Claude Code turn status to mux-solo",
+  "author": {
+    "name": "Hans Schnedlitz"
+  },
+  "repository": "https://github.com/hschne/mux-solo"
+}

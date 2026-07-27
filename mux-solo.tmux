@@ -8,7 +8,7 @@
 #   #{E:@mux_solo_attention}   red if a pane crashed, blue if an agent is
 #                              waiting, else empty (keep your own accent)
 #
-# Producers (shell hook, pi extension, ...) set two per-pane user options:
+# Producers (shell hook, agent integrations, ...) set two per-pane user options:
 #   @pane_status  one of: running working waiting crashed exited
 #   @pane_label   short text shown next to the dot
 set -euo pipefail
@@ -51,7 +51,7 @@ attention='#{?#{m:*crashed*,#{P:#{@pane_status} }},#{@mux-solo-color-crashed},#{
 tmux set-option -g "@mux_solo_name" "$name"
 tmux set-option -g "@mux_solo_attention" "$attention"
 
-# Publish our install dir so the shell hook and pi extension can be sourced
+# Publish our install dir so the shell hook and agent integrations can be loaded
 # without hardcoding the tpm plugin path:
 #   source "$(tmux show-environment -g MUX_SOLO_DIR | cut -d= -f2)/shell/mux-solo.zsh"
 tmux set-environment -g MUX_SOLO_DIR "$CURRENT_DIR"

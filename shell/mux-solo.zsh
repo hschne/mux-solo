@@ -9,8 +9,8 @@
 # `RAILS_ENV=test rails s` resolve. Matching is word-prefix: `rails`
 # matches `rails server`, and a multi-word entry like `bundle exec rails`
 # matches `bundle exec rails console`. Agent panes are owned by their own
-# producer (e.g. the pi extension), which writes the same @pane_status /
-# @pane_label options directly.
+# producer (e.g. the Pi or Claude integration), which writes the same
+# @pane_status / @pane_label options directly.
 
 # Only meaningful inside tmux.
 [[ -n "$TMUX" ]] || return 0
