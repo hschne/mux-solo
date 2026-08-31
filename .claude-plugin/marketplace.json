@@ -1,0 +1,15 @@
+{
+  "name": "mux-solo",
+  "description": "Claude Code integration for mux-solo",
+  "owner": {
+    "name": "Hans Schnedlitz"
+  },
+  "plugins": [
+    {
+      "name": "mux-solo",
+      "source": "./integrations/claude",
+      "description": "Report Claude Code turn status to mux-solo",
+      "keywords": ["tmux", "status", "hooks"]
+    }
+  ]
+}

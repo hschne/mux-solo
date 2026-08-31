@@ -74,7 +74,22 @@ pi -e "$(tmux show-environment -g MUX_SOLO_DIR | cut -d= -f2)/integrations/pi/tm
 
 ### Claude Code
 
-Run Claude Code with the bundled plugin:
+Install the bundled plugin permanently for your user:
+
+```sh
+claude plugin marketplace add hschne/mux-solo
+claude plugin install mux-solo@mux-solo --scope user
+```
+
+To install from a local checkout instead:
+
+```sh
+claude plugin marketplace add ~/Source/mux-solo
+claude plugin install mux-solo@mux-solo --scope user
+```
+
+Verify with `claude plugin list`, then restart Claude Code. For a one-off
+session without installing:
 
 ```sh
 claude --plugin-dir "$(tmux show-environment -g MUX_SOLO_DIR | cut -d= -f2)/integrations/claude"
